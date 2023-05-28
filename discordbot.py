@@ -6,16 +6,18 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 import time
 import booksearch
-
-def book_check(m): # 도서검색의 wait_for에 사용되는 check 함수
-    return m.content
-    #return m.content == '1' or m.content == '2' or m.content == '3' or m.content == '4' or m.content == '5' or m.content == '6' or m.content == '7' or m.content == '8' or m.content == '9' or m.content == '10'
+from discord.ext import commands                #페이스북 관련 import
+from selenium_script import perform_facebook_search # #페이스북 관련 import
+import weather_bot
+import json
+import library
 
 intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-token = 'MTEwMjc0ODU3MzQ2MTkyMTg4Mw.G_TW_w.2iCczzVUi1CzsG1UGEGBjrj1RYzXZi3zBAt5nc'  # 토큰 입력 필요
+token = 'MTEwMjc0ODU3MzQ2MTkyMTg4Mw.GvcvAO.L6-fSusJvexvzoi65zOGGlraIvnS3bR3Cly_7U'  # 토큰은 자신의 것으로 수정해야함
+riot_token =" "  # 본인 라이엇 api키 입력
 
 @client.event
 async def on_ready():  # when discord bot got ready
@@ -44,20 +46,50 @@ async def on_message(message): # 메세지 입력 시
         
 
     if "도서검색" in message.content: 
-        book_list_str, book = booksearch.book_list_search(message.content)
+        await library.library_search(message, client)
+       
+    if "페이스북" in message.content:          #페이스북을 검색하는 
+        results = perform_facebook_search()
+        if results:
+            for result in results:
+                await message.channel.send(result)  # 디스코드에 결과를 전송합니다.
+        else:
+            await message.channel.send('페이스북 피드를 찾을 수 없습니다.')
+            
+    await weather_bot.handle_weather_command(message) # 날씨 명령어 처리
+    
+    if message.content.startswith("/검색 "):
+        UserName = message.content.replace("/검색 ", "")  
+        UserInfoUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + UserName
+        res = requests.get(UserInfoUrl, headers={"X-Riot-Token":riot_token})
+        resjs = json.loads(res.text)
 
-        if book_list_str != '':
-            await message.channel.send(book + "의 검색 결과입니다.\n```" + book_list_str + '```' + '소장사항을 보길 원하는 도서의 번호를 입력해주세요.')
+        if res.status_code == 200:
+            UserIconUrl = "http://ddragon.leagueoflegends.com/cdn/13.10.1/img/profileicon/{}.png"  # 패치될떄 버전 수정
+            embed = discord.Embed(title=f"{resjs['name']} 님의 플레이어 정보", description=f"**{resjs['summonerLevel']} LEVEL**", color=0xFF9900)
 
-            input_no_msg = await client.wait_for('message', check=booksearch.book_check)
-            input_no = input_no_msg.content # 사용자로부터 입력받은 메세지
+            UserInfoUrl_2 = "https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/" + resjs["id"]
+            res_2 = requests.get(UserInfoUrl_2, headers={"X-Riot-Token":riot_token})
+            res_2js = json.loads(res_2.text)
 
-            book_rental_msg = booksearch.book_rental_check(input_no)
+            if res_2js == []: # 언랭크일때
+                embed.add_field(name=f"{resjs['name']} 님은 언랭크입니다.", value="**언랭크 유저의 정보는 출력하지 않습니다.**", inline=False)
 
-            await message.channel.send(book_rental_msg)
-        else :
-            await message.channel.send('검색 결과가 없습니다.')
-        
-        
+            else: # 언랭크가 아닐때
+                for rank in res_2js:
+                    if rank["queueType"] == "RANKED_SOLO_5x5":
+                        embed.add_field(name="솔로랭크", value=f"**티어 : {rank['tier']} {rank['rank']} - {rank['leaguePoints']} LP**\n"
+                                                           f"**승 / 패 : {rank['wins']} 승 {rank['losses']} 패**", inline=True)
+
+                    else:
+                        embed.add_field(name="자유랭크", value=f"**티어 : {rank['tier']} {rank['rank']} - {rank['leaguePoints']} LP**\n"
+                                                            f"**승 / 패 : {rank['wins']} 승 {rank['losses']} 패**", inline=True)
+
+            embed.set_author(name=resjs['name'], url=f"http://fow.kr/find/{UserName.replace(' ', '')}", icon_url=UserIconUrl.format(resjs['profileIconId']))
+            await message.channel.send(embed=embed) # UserName에 띄워쓰기 제거
+
+        else: # 존재하지 않는 소환사일때, 오류코드 4??
+            error = discord.Embed(title="존재하지 않는 소환사명입니다.\n다시 한번 확인해주세요.", color=0xFF9900)
+            await message.channel.send(embed=error)
 
 client.run(token)

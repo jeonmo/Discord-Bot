@@ -10,7 +10,7 @@ def book_check(m): # 도서검색의 wait_for에 사용되는 check 함수
     return m.content
     #return m.content == '1' or m.content == '2' or m.content == '3' or m.content == '4' or m.content == '5' or m.content == '6' or m.content == '7' or m.content == '8' or m.content == '9' or m.content == '10'
 
-
+# 사용자 메시지를 토대로 도서검색을 시작하는 함수
 def book_list_search(message):
     # book_list_str은 디스코드 봇이 메시지로 사용할 책 리스트 문자열입니다.
     # book은 검색어 이름입니다. (ex) 도서검색 자바 --> book == '자바'
@@ -39,8 +39,8 @@ def book_list_search(message):
 
     return book_list_str, book
 
+# 사용자 메시지의 숫자를 토대로 해당 숫자에 해당하는 도서의 대출여부를 크롤링하는 함수
 def book_rental_check(input_no):
-
     if input_no == '1' or input_no == '2' or input_no == '3' or input_no == '4' or input_no == '5' or input_no == '6' or input_no == '7' or input_no == '8' or input_no == '9' or input_no == '10' :
         if input_no == '1':
             book_click_element = dr.find_element(By.XPATH,'//*[@id="content_data"]/form/div[4]/table/tbody/tr[1]/td[3]/a').click()
