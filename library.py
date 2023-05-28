@@ -1,6 +1,7 @@
 import booksearch
 
 # 디스코드 도서검색 처리과정 함수
+# 디스코드 봇과 사용자가 소통하는 도서검색 과정의 흐름을 나타낸 함수입니다.
 async def library_search(message, client):
     book_list_str, book = booksearch.book_list_search(message.content)
 
