@@ -56,6 +56,13 @@ async def on_message(message): # 메세지 입력 시
         else:
             await message.channel.send('페이스북 피드를 찾을 수 없습니다.')
             
+    if message.content == "동의대 공지사항"  # "동의대 공지사항" 메시지가 도착하면 공지사항 정보를 가져와서 전송
+    
+        result = await get_notice_information()
+        await message.channel.send(result)
+
+    await bot.process_commands(message)
+            
     await weather_bot.handle_weather_command(message) # 날씨 명령어 처리
     
  @client.event
