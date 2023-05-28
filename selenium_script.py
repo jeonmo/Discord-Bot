@@ -2,8 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.common.keys import Keys
+import asyncio
 
-def perform_facebook_search():
+async def perform_facebook_search():
     # Selenium 웹 드라이버 설정 (Chrome)
     DRIVER_PATH = 'C:/projectbot/selenium/chromedriver.exe'  # 크롬 드라이버 파일 경로를 입력
 
