@@ -216,7 +216,7 @@ async def handle_weather_command(message):
     #    None
 
     # 메시지가 "날씨"로 시작하는 경우에만 처리
-    if message.content.startswith("날씨"): 
+    if message.content.startswith("날씨"): # 명령어: 날씨 도시이름
         city = message.content[3:].strip() # 도시 이름 추출
         result = process_weather_command(city) # 날씨 정보 처리 함수 호출
         await message.channel.send(result) # 결과를 디스코드 채널로 전송
