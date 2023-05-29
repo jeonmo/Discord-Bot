@@ -49,6 +49,10 @@ async def on_message(message): # 메세지 입력 시
     if "도서검색" in message.content: 
         await library.library_search(message, client)
         
+        
+    if message.content.startswith("날씨"):
+        await weahter_bot.handle_weather_command(message)
+        
 @client.event
 async def on_message(message):  # /검색 "소환사이름"
     await RiotSearch.search_summoner(message, riot_token)       
