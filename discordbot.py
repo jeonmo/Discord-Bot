@@ -11,6 +11,7 @@ from selenium_script import perform_facebook_search # #페이스북 관련 impor
 import weather_bot
 import json
 import library
+import RiotSearch
 
 intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
@@ -47,5 +48,10 @@ async def on_message(message): # 메세지 입력 시
 
     if "도서검색" in message.content: 
         await library.library_search(message, client)
+        
+@client.event
+async def on_message(message):  # /검색 "소환사이름"
+    await RiotSearch.search_summoner(message, riot_token)       
+    
        
 client.run(token)
