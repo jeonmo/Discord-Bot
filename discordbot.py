@@ -48,25 +48,4 @@ async def on_message(message): # 메세지 입력 시
     if "도서검색" in message.content: 
         await library.library_search(message, client)
        
-     if "페이스북" in message.content:          #페이스북을 검색하는 
-        results = perform_facebook_search()
-        if results:
-            for result in results:
-                await message.channel.send(result)  # 디스코드에 결과를 전송합니다.
-        else:
-            await message.channel.send('페이스북 피드를 찾을 수 없습니다.')
-            
-    if message.content == "동의대 공지사항"  # "동의대 공지사항" 메시지가 도착하면 공지사항 정보를 가져와서 전송
-    
-        result = await get_notice_information()
-        await message.channel.send(result)
-
-    await bot.process_commands(message)
-            
-    await weather_bot.handle_weather_command(message) # 날씨 명령어 처리
-    
- @client.event
-async def on_message(message):     # Riot소환사 정보 검색
-    await search_summoner(message, "YOUR_RIOT_API_TOKEN")
-
 client.run(token)
