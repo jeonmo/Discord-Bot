@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 import time
 import booksearch
 from discord.ext import commands                #페이스북 관련 import
-from selenium_script import perform_facebook_search # #페이스북 관련 import
+import selenium_script                          # #페이스북 관련 import
 import weather_bot
 import json
 import library
@@ -48,7 +48,9 @@ async def on_message(message): # 메세지 입력 시
 
     if "도서검색" in message.content: 
         await library.library_search(message, client)
-        
+    
+    if "페이스북" in message.content:
+        await selenium_script.facebook_search(message, client)    
         
     if message.content.startswith("날씨"):
         await weahter_bot.handle_weather_command(message)
