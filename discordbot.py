@@ -50,7 +50,11 @@ async def on_message(message): # 메세지 입력 시
         await library.library_search(message, client)
     
     if "페이스북" in message.content:
-        await selenium_script.facebook_search(message, client)    
+        await selenium_script.facebook_search(message, client)
+     
+    if "동의대 공지사항" in message.content:
+    result = await get_notice_information()
+    await message.channel.send(result)
         
     if message.content.startswith("날씨"):
         await weahter_bot.handle_weather_command(message)
