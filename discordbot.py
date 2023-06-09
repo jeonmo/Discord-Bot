@@ -12,8 +12,8 @@ intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-token = 'MTEwMDk4NDQwMTQyMjIwMDg3NA.GTyJ-P.hYRpWoFoM36GRIFWvvs1pGU1oVr8m3W4Z_fn7A'  # 토큰은 자신의 것으로 수정해야함
-riot_token ="RGAPI-00d6eb5e-708e-4392-9804-1cb77ea5dc0c"  # 본인 라이엇 api키 입력
+token = ''  # 토큰은 자신의 것으로 수정해야함
+riot_token =""  # 본인 라이엇 api키 입력
 
 
 @client.event
