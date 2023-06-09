@@ -1,65 +1,60 @@
-import discord
-import requests
-from bs4 import BeautifulSoup as bs
-from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.by import By
-import time
-import booksearch
-from discord.ext import commands                #페이스북 관련 import
+import discord         
 import selenium_script                          # #페이스북 관련 import
 import weather_bot
-import json
 import library
 import RiotSearch
+import defaultFunction
+import baekjoon
+import webScraping
+import move
 
 intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-token = 'MTEwMjc0ODU3MzQ2MTkyMTg4Mw.GvcvAO.L6-fSusJvexvzoi65zOGGlraIvnS3bR3Cly_7U'  # 토큰은 자신의 것으로 수정해야함
-riot_token =" "  # 본인 라이엇 api키 입력
+token = 'MTEwMDk4NDQwMTQyMjIwMDg3NA.GTyJ-P.hYRpWoFoM36GRIFWvvs1pGU1oVr8m3W4Z_fn7A'  # 토큰은 자신의 것으로 수정해야함
+riot_token ="RGAPI-00d6eb5e-708e-4392-9804-1cb77ea5dc0c"  # 본인 라이엇 api키 입력
+
 
 @client.event
 async def on_ready():  # when discord bot got ready
-    print('Done')
+    print('Done.')
     await client.change_presence(status=discord.Status.online, activity=None)  # 봇 상태 온라인, 활동상태 없음
    
+# 중심이 되는 메세지 박스
+global mainmsg
+mainmsg=None
 @client.event
 async def on_message(message): # 메세지 입력 시
-    functionNum = 0
+    global mainmsg
+
     if message.author == client.user: # 봇이 입력한 경우
         return
     if message.author != client.user :
         print("discord에서 입력한 메세지 :", message.content)
-
-
-    if message.content == "안녕하세요": # 메세지 내용이 안녕하세요 일때
-        await message.channel.send("반갑습니다") # 반갑습니다 라는 내용을 채널에 입력
-    if message.content == "안녕하세요!": # 메세지 내용이 안녕하세요 일때
-        await message.channel.send("반갑습니다!") # 반갑습니다 라는 내용을 채널에 입력
-    if message.content == "스트림":
-        await message.channel.send("스트림합니다")
-        await client.change_presence(status=discord.Status.online, activity=discord.Streaming(name='스트리밍', url='https://www.twitch.tv/ajehr'))
-    if message.content == "중지":
-        await message.channel.send("현재 활동을 중지합니다")
-        await client.change_presence(status=discord.Status.online, activity=None)
-        
-
-    if "도서검색" in message.content: 
-        await library.library_search(message, client)
+    if message.content == "/최초화면": # 봇 시작, 또는 최초화면으로 돌아가기
+        mainmsg = await defaultFunction.startBot(message, mainmsg)
+    if message.content == "/이동":
+        await move.channelPingPong(message)
+    if message.content == "/채널삭제":
+        await move.deleteChannel()
+        # await move.channel()
+    if message.content.startswith("/도서검색"):  #  /도서검색 {query}
+        await library.library_search(message, client, mainmsg)
+    if message.content.startswith("/페이스북"):
+        await selenium_script.facebook_search(message, client, mainmsg)    
+    if message.content.startswith("/날씨"):  # /날씨 {지역}
+        await weather_bot.handle_weather_command(message, mainmsg)
+    if message.content.startswith("/검색"):  # /검색 "소환사이름"
+        await RiotSearch.search_summoner(message, riot_token, mainmsg) 
+    if message.content.startswith("/백준기능설명"):
+        await baekjoon.백준기능설명(mainmsg)
+    if message.content.startswith("/백준기능"):
+        await baekjoon.백준기능(message, mainmsg)
+    if message.content.startswith("/식단"):
+        mainmsg = await mainmsg.edit(content=webScraping.happiness_dormintory_diet(message.content))
+    if message.content.startswith("/학사일정"):
+        mainmsg = await mainmsg.edit(content=webScraping.academic_calendar())
     
-    if "페이스북" in message.content:
-        await selenium_script.facebook_search(message, client)
-     
-    if "동의대 공지사항" in message.content:
-    result = await get_notice_information()
-    await message.channel.send(result)
-        
-    if message.content.startswith("날씨"):
-        await weahter_bot.handle_weather_command(message)
-    
-    if message.content.startswith("/검색 "):
-        await RiotSearch.search_summoner(message, riot_token)
-            
+       
 client.run(token)

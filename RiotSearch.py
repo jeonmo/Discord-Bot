@@ -2,7 +2,7 @@ import requests
 import json
 import discord
 
-async def search_summoner(message, riot_token):
+async def search_summoner(message, riot_token, mainmsg):
     if message.content.startswith("/검색 "):
         UserName = message.content.replace("/검색 ", "")
         UserInfoUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + UserName  # 변수명 + 디스코드에서 사용자가 입력한 소환사 명
@@ -30,8 +30,8 @@ async def search_summoner(message, riot_token):
                                                             f"**승 / 패 : {rank['wins']} 승 {rank['losses']} 패**", inline=True)
                                                                                                                                             
             embed.set_author(name=resjs['name'], url=f"http://fow.kr/find/{UserName.replace(' ', '')}", icon_url=UserIconUrl.format(resjs['profileIconId']))  
-            await message.channel.send(embed=embed)  # UserName 띄워쓰기 제거
+            await mainmsg.edit(embed=embed, content="")  # UserName 띄워쓰기 제거
 
         else:  # 존재하지 않는 소환사일떄, 없는 소환사 명은 오류코드 4?? 출력
             error = discord.Embed(title="존재하지 않는 소환사명입니다.\n다시 한번 확인해주세요.", color=0xFF9900)
-            await message.channel.send(embed=error)
+            await mainmsg.edit(embed=error, content="")

@@ -3,21 +3,19 @@ from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.common.keys import Keys
 
-async def send_results(results, message):
+async def send_results(results, message, mainmsg): # 2000자 제한
     for result in results:
-        await message.channel.send(result)
+        await message.channel.send(content = result)
 
-async def facebook_search(message, client):
-    DRIVER_PATH = 'C:/projectbot/selenium/chromedriver.exe'  # ChromeDriver의 파일 경로로 수정해주세요
+async def facebook_search(message, client, mainmsg):
+    DRIVER_PATH = './chromedriver.exe'  # ChromeDriver의 파일 경로로 수정해주세요
     url = "https://www.deu.ac.kr/www"
 
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-notifications")             #알림 표시를 비활성화하는 옵션
     options.add_argument("--ignore-certificate-errors")         #인증서 오류를 무시하는 옵션을 추가합니다.
     options.add_experimental_option("excludeSwitches", ["enable-logging"])#ChromeDriver 로그를 출력하지 않도록 설정하는 옵션
-    service = webdriver.chrome.service.Service(DRIVER_PATH)
-    service.start()
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome(DRIVER_PATH, options=options)
 
     try:
         driver.get(url)
@@ -56,7 +54,7 @@ async def facebook_search(message, client):
         else:
             results.append('페이스북 피드를 찾을 수 없습니다.')
 
-        await send_results(results, message)
+        await send_results(results, message, mainmsg)
 
     finally:
         driver.quit()
