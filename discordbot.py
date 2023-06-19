@@ -57,8 +57,8 @@ async def on_message(message): # 메세지 입력 시
         await library.library_collection(message, client)    
      
     if "동의대 공지사항" in message.content:
-    result = await get_notice_information()
-    await message.channel.send(result)
+        result = await get_notice_information()
+        await message.channel.send(result)
         
     if message.content.startswith("날씨"):
         await weahter_bot.handle_weather_command(message)
