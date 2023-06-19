@@ -1,7 +1,6 @@
 import math
 import requests
 import json
-import discord
 from datetime import datetime, timedelta
 
 def get_coordinates(city):
@@ -113,6 +112,7 @@ def get_forecast_temperature(x, y):
     response = requests.get(base_url, params=params)
     data = json.loads(response.text)
     weather_items = data['response']['body']['items']['item']
+
     result = ""
 
     tmp_value = None  # 현재기온
@@ -146,25 +146,26 @@ def get_forecast_temperature(x, y):
 
     if pty_value is not None:
         if pty_value == '0':
-            result += "날씨: 맑음\n"
+            result += f"날씨: 맑음\n"
         elif pty_value == '1':
-            result += "날씨: 비\n"
+            result += f"날씨: 비\n"
         elif pty_value == '2':
-            result += "날씨: 비/눈\n"
+            result += f"날씨: 비/눈\n"
         elif pty_value == '3':
-            result += "날씨: 눈\n"
+            result += f"날씨: 눈\n"
         elif pty_value == '5':
-            result += "날씨: 빗방울\n"
+            result += f"날씨: 빗방울\n"
         else:
             result += "날씨: 없음\n"
 
+
     # 정보가 있는 경우 해당 정보를 결과 문자열에 추가
     if tmp_value is not None:
-        result += f"현재기온: {tmp_value}도\n"
+        result += f"현재기온: {tmp_value}°\n"
     if tmx_value is not None:
-        result += f"최고기온: {tmx_value}도\n"
+        result += f"최고기온: {tmx_value}°\n"
     if tmn_value is not None:
-        result += f"최저기온: {tmn_value}도\n"
+        result += f"최저기온: {tmn_value}°\n"
     if reh_value is not None:
         result += f"습도: {reh_value}%\n"
     if pop_value is not None:
@@ -207,7 +208,7 @@ def process_weather_command(city):
     else:
         # 주어진 도시의 좌표를 찾을 수 없는 경우 메시지 반환
         return f"'{city}'의 좌표를 찾을 수 없습니다."
-    
+
 async def handle_weather_command(message):
     # 날씨 명령어를 처리하는 함수
     # Args:
@@ -219,7 +220,7 @@ async def handle_weather_command(message):
     #if message.content.startswith("날씨"): # 명령어: 날씨 도시이름
         city = message.content[3:].strip() # 도시 이름 추출
         result = process_weather_command(city) # 날씨 정보 처리 함수 호출
-        
+
         weather_info = result.strip().split('\n')
         output = f"```\n{weather_info[0]}\n\n"
         output += f"{weather_info[1]}\n"
@@ -227,5 +228,5 @@ async def handle_weather_command(message):
         output += f"{weather_info[3]}\n\n"
         output += f"{weather_info[4]}\n"
         output += f"{weather_info[5]}\n```"
-      
-        await message.channel.send(result) # 결과를 디스코드 채널로 전송
+
+        await message.channel.send(output) # 결과를 디스코드 채널로 전송
