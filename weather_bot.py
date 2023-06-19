@@ -160,11 +160,11 @@ def get_forecast_temperature(x, y):
 
     # 정보가 있는 경우 해당 정보를 결과 문자열에 추가
     if tmp_value is not None:
-        result += f"현재기온: {tmp_value}도\n"
+        result += f"현재기온: {tmp_value}°\n"
     if tmx_value is not None:
-        result += f"최고기온: {tmx_value}도\n"
+        result += f"최고기온: {tmx_value}°\n"
     if tmn_value is not None:
-        result += f"최저기온: {tmn_value}도\n"
+        result += f"최저기온: {tmn_value}°\n"
     if reh_value is not None:
         result += f"습도: {reh_value}%\n"
     if pop_value is not None:
