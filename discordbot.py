@@ -51,6 +51,10 @@ async def on_message(message): # 메세지 입력 시
     
     if "페이스북" in message.content:
         await selenium_script.facebook_search(message, client)
+
+    # 중앙도서관 도서추천 기능 추가했습니다. (discordbot.py에 if문 추가, library에 library_collection 함수 추가 및 bookcollection 임포트, bookcollection 코드 추가) 
+    if "도서추천" in message.content: 
+        await library.library_collection(message, client)    
      
     if "동의대 공지사항" in message.content:
     result = await get_notice_information()
