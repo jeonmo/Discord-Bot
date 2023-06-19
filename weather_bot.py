@@ -219,4 +219,13 @@ async def handle_weather_command(message):
     #if message.content.startswith("날씨"): # 명령어: 날씨 도시이름
         city = message.content[3:].strip() # 도시 이름 추출
         result = process_weather_command(city) # 날씨 정보 처리 함수 호출
+        
+        weather_info = result.strip().split('\n')
+        output = f"```\n{weather_info[0]}\n\n"
+        output += f"{weather_info[1]}\n"
+        output += f"{weather_info[2]}\n"
+        output += f"{weather_info[3]}\n\n"
+        output += f"{weather_info[4]}\n"
+        output += f"{weather_info[5]}\n```"
+      
         await message.channel.send(result) # 결과를 디스코드 채널로 전송
