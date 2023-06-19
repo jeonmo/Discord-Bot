@@ -16,3 +16,34 @@ async def library_search(message, client):
         await message.channel.send(book_rental_msg)
     else :
         await message.channel.send('검색 결과가 없습니다.')
+
+async def library_collection(message, client):
+    await message.channel.send("```동의대 콜랙션을 확인할 수 있습니다.\n원하는 번호를 선택해주세요.\n1. 베스트셀러\n2. 동의대권장도서\n3. 원북원부산도서\n4. 특성화(트렌드)도서\n5. 북큐레이션```")
+
+    input_no_msg = await client.wait_for('message', check=collection_check)
+    input_no = input_no_msg.content
+
+    if input_no == '1':
+        collection_msg = bookcollection.book_bestSeller()
+        await message.channel.send(collection_msg)
+
+    if input_no == '2':
+        collection_msg = bookcollection.book_recommended()
+        await message.channel.send(collection_msg)
+
+    if input_no == '3':
+        collection_msg = bookcollection.book_oneBookOneBusan()
+        await message.channel.send(collection_msg)
+    
+    if input_no == '4':
+        collection_msg = bookcollection.book_trend()
+        await message.channel.send(collection_msg)
+    
+    if input_no == '5':
+        collection_msg = bookcollection.book_bookCuration()
+        await message.channel.send(collection_msg)
+
+    
+
+def collection_check(m): # 도서추천의 wait_for에 사용되는 check 함수
+    return m.content
