@@ -1,69 +1,120 @@
-import discord
-import requests
-from bs4 import BeautifulSoup as bs
-from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.by import By
-import time
-import booksearch
-from discord.ext import commands                #페이스북 관련 import
+import discord         
 import selenium_script                          # #페이스북 관련 import
 import weather_bot
-import json
 import library
 import RiotSearch
+import defaultFunction
+import baekjoon
+import webScraping
+import move
 
 intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-token = 'MTEwMjc0ODU3MzQ2MTkyMTg4Mw.GvcvAO.L6-fSusJvexvzoi65zOGGlraIvnS3bR3Cly_7U'  # 토큰은 자신의 것으로 수정해야함
-riot_token =" "  # 본인 라이엇 api키 입력
+token = ''  # 토큰은 자신의 것으로 수정해야함
+riot_token =""  # 본인 라이엇 api키 입력
+
 
 @client.event
 async def on_ready():  # when discord bot got ready
-    print('Done')
+    print('Done.')
     await client.change_presence(status=discord.Status.online, activity=None)  # 봇 상태 온라인, 활동상태 없음
    
+# 중심이 되는 메세지 박스 딕셔너리
+global mainmsg
+mainmsg={}
+global longmsg # 페이스북 등 긴 메세지 출력 시 사용
+longmsg=[]
+
 @client.event
 async def on_message(message): # 메세지 입력 시
-    functionNum = 0
+    global mainmsg
+    global buttons
+    global longmsg
+    buttons = [
+        {"custom_id": "Button 1", "label": "최초화면(사용방법)"},
+        {"custom_id": "Button 2", "label": "학사일정"},
+        {"custom_id": "Button 3", "label": "페이스북 확인"},
+        {"custom_id": "Button 4", "label": "부산 날씨"},
+        {"custom_id": "Button 5", "label": "백준 기능"},
+        {"custom_id": "Button 6", "label": "기숙사 식단"}
+    ]
     if message.author == client.user: # 봇이 입력한 경우
         return
     if message.author != client.user :
         print("discord에서 입력한 메세지 :", message.content)
+    if len(longmsg)>0:
+        for msg in longmsg:
+            try:
+                await msg.delete()
+            except discord.errors.NotFound:
+                pass
+        longmsg = []
+    if message.author not in mainmsg:
+        msg = await move.newChannel(message, mainmsg, client)
+        mainmsg[message.author]=msg
+        await defaultFunction.startBot(mainmsg, message.author)
 
-
-    if message.content == "안녕하세요": # 메세지 내용이 안녕하세요 일때
-        await message.channel.send("반갑습니다") # 반갑습니다 라는 내용을 채널에 입력
-    if message.content == "안녕하세요!": # 메세지 내용이 안녕하세요 일때
-        await message.channel.send("반갑습니다!") # 반갑습니다 라는 내용을 채널에 입력
-    if message.content == "스트림":
-        await message.channel.send("스트림합니다")
-        await client.change_presence(status=discord.Status.online, activity=discord.Streaming(name='스트리밍', url='https://www.twitch.tv/ajehr'))
-    if message.content == "중지":
-        await message.channel.send("현재 활동을 중지합니다")
-        await client.change_presence(status=discord.Status.online, activity=None)
-        
-
-    if "도서검색" in message.content: 
-        await library.library_search(message, client)
+        button_style = discord.ButtonStyle.primary
+        view = discord.ui.View()
+        for button_info in buttons:
+            button = discord.ui.Button(label=button_info['label'], style=button_style, custom_id=button_info['custom_id'])
+            view.add_item(button)
+        await mainmsg[message.author].edit(view=view)
+    else:
+        if message.content.startswith("/도서검색"):  #  /도서검색 {query}
+            await library.library_search(message, client, mainmsg[message.author])
+        if message.content.startswith("/도서추천"):
+            mainmsg[message.author] = await library.library_collection(message, client, longmsg, mainmsg[message.author])
+            print(mainmsg[message.author].content)
+        if message.content.startswith("/페이스북"):
+            await selenium_script.facebook_search(message, longmsg, mainmsg[message.author])    
+        if message.content.startswith("/날씨"):  # /날씨 {지역}
+            await weather_bot.handle_weather_command(message, mainmsg[message.author])
+        if message.content.startswith("/검색"):  # /검색 "소환사이름"
+            await RiotSearch.search_summoner(message, riot_token, mainmsg[message.author]) 
+        if message.content.startswith("/백준기능설명"):
+            await baekjoon.백준기능설명(mainmsg[message.author])
+        if message.content.startswith("/백준기능"):
+            await baekjoon.백준기능(message, mainmsg[message.author])
+        if message.content.startswith("/식단"):
+            await webScraping.happiness_dormintory_diet(message.content, message)
+        if message.content.startswith("/학사일정"):
+            await webScraping.academic_calendar(mainmsg, message)
+        await message.delete()
     
-    if "페이스북" in message.content:
-        await selenium_script.facebook_search(message, client)
 
-    # 중앙도서관 도서추천 기능 추가했습니다. (discordbot.py에 if문 추가, library에 library_collection 함수 추가 및 bookcollection 임포트, bookcollection 코드 추가) 
-    if "도서추천" in message.content: 
-        await library.library_collection(message, client)    
-     
-    if "동의대 공지사항" in message.content:
-        result = await get_notice_information()
-        await message.channel.send(result)
-        
-    if message.content.startswith("날씨"):
-        await weahter_bot.handle_weather_command(message)
-    
-    if message.content.startswith("/검색 "):
-        await RiotSearch.search_summoner(message, riot_token)
-            
+@client.event
+async def on_interaction(interaction):
+    global longmsg
+    if len(longmsg)>0:
+        for msg in longmsg:
+            try:
+                await msg.delete()
+            except discord.errors.NotFound:
+                pass
+        longmsg = []
+    if interaction.type == discord.InteractionType.component:
+        for button_info in buttons:
+            if interaction.data['custom_id'] == button_info['custom_id']:
+                if button_info['custom_id']=='Button 1': # 기본화면
+                    await interaction.response.defer()
+                    await defaultFunction.startBot(mainmsg, interaction.user)
+                elif button_info['custom_id']=='Button 2': # 학사일정
+                    await interaction.response.defer()
+                    await webScraping.academic_calendar(mainmsg, interaction.user)
+                elif button_info['custom_id']=='Button 3': # 페이스북
+                    await interaction.response.defer()
+                    longmsg = await selenium_script.facebook_search(longmsg, mainmsg[interaction.user])
+                elif button_info['custom_id']=='Button 4': # 부산날씨
+                    await interaction.response.defer()
+                    await weather_bot.handle_weather_command("부산", mainmsg[interaction.user])
+                elif button_info['custom_id']=='Button 5': # 백준 기능
+                    await interaction.response.defer()
+                    await baekjoon.백준기능설명(mainmsg[interaction.user])
+                elif button_info['custom_id']=='Button 6': # 식단
+                    await interaction.response.defer()
+                    await webScraping.happiness_dormintory_diet(mainmsg[interaction.user])
+       
 client.run(token)

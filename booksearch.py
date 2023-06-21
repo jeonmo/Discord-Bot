@@ -21,7 +21,7 @@ def book_list_search(message):
 
     url = "https://lib.deu.ac.kr/data_data_list.mir?search_keyword_type1=title&search_keyword1=" + book
     global dr
-    dr = webdriver.Chrome()
+    dr = webdriver.Chrome('./chromedriver.exe')
     dr.get(url) 
 
     act = ActionChains(dr)

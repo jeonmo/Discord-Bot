@@ -137,4 +137,3 @@ def book_bookCuration():
 
     dr.quit()
     return book_list_str
-
