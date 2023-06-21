@@ -7,12 +7,13 @@ import defaultFunction
 import baekjoon
 import webScraping
 import move
+import Notice
 
 intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-token = ''  # 토큰은 자신의 것으로 수정해야함
+token = 'MTEwMDk4NDQwMTQyMjIwMDg3NA.GScR25.HdtcfR73R1Mb6E8Jw2A5XTA7KP7CnU4LGualF4'  # 토큰은 자신의 것으로 수정해야함
 riot_token =""  # 본인 라이엇 api키 입력
 
 
@@ -38,7 +39,8 @@ async def on_message(message): # 메세지 입력 시
         {"custom_id": "Button 3", "label": "페이스북 확인"},
         {"custom_id": "Button 4", "label": "부산 날씨"},
         {"custom_id": "Button 5", "label": "백준 기능"},
-        {"custom_id": "Button 6", "label": "기숙사 식단"}
+        {"custom_id": "Button 6", "label": "기숙사 식단"},
+        {"custom_id": "Button 7", "label": "공지사항"}
     ]
     if message.author == client.user: # 봇이 입력한 경우
         return
@@ -116,5 +118,7 @@ async def on_interaction(interaction):
                 elif button_info['custom_id']=='Button 6': # 식단
                     await interaction.response.defer()
                     await webScraping.happiness_dormintory_diet(mainmsg[interaction.user])
-       
+                elif button_info['custom_id']=='Button 7': # 공지사항
+                    await interaction.response.defer()
+                    await Notice.get_notice_information(mainmsg[interaction.user])
 client.run(token)
