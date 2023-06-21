@@ -13,8 +13,8 @@ intents = discord.Intents.default()  # 권한 설정
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-token = 'MTEwMDk4NDQwMTQyMjIwMDg3NA.GScR25.HdtcfR73R1Mb6E8Jw2A5XTA7KP7CnU4LGualF4'  # 토큰은 자신의 것으로 수정해야함
-riot_token =""  # 본인 라이엇 api키 입력
+token = 'MTEwMDk4NDQwMTQyMjIwMDg3NA.Gh6g-_.DnsGeYSbF8xVBxVDUWDQuIZ_TEA_kvLMCbRDpI'  # 토큰은 자신의 것으로 수정해야함
+riot_token ="RGAPI-54517728-5e08-4beb-95d6-6c4b5dfb132a"  # 본인 라이엇 api키 입력
 
 
 @client.event
@@ -65,6 +65,8 @@ async def on_message(message): # 메세지 입력 시
             view.add_item(button)
         await mainmsg[message.author].edit(view=view)
     else:
+        if mainmsg[message.author].embeds:
+            await mainmsg[message.author].edit(embed=None)
         if message.content.startswith("/도서검색"):  #  /도서검색 {query}
             await library.library_search(message, client, mainmsg[message.author])
         if message.content.startswith("/도서추천"):
@@ -75,7 +77,7 @@ async def on_message(message): # 메세지 입력 시
         if message.content.startswith("/날씨"):  # /날씨 {지역}
             await weather_bot.handle_weather_command(message, mainmsg[message.author])
         if message.content.startswith("/검색"):  # /검색 "소환사이름"
-            await RiotSearch.search_summoner(message, riot_token, mainmsg[message.author]) 
+            await RiotSearch.search_summoner(message, riot_token, longmsg) 
         if message.content.startswith("/백준기능설명"):
             await baekjoon.백준기능설명(mainmsg[message.author])
         if message.content.startswith("/백준기능"):
@@ -97,6 +99,8 @@ async def on_interaction(interaction):
             except discord.errors.NotFound:
                 pass
         longmsg = []
+    if mainmsg[interaction.user].embeds:
+        await mainmsg[interaction.user].edit(embed=None)
     if interaction.type == discord.InteractionType.component:
         for button_info in buttons:
             if interaction.data['custom_id'] == button_info['custom_id']:
